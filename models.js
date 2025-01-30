@@ -3,8 +3,8 @@ const mysql = require('mysql2');
 // Create MySQL connection
 const db = mysql.createConnection({
     host: 'localhost',
-    user: 'root', // Replace with your MySQL username
-    password: 'mysql#amar#2003', // Replace with your MySQL password
+    user: "root", // Replace with your MySQL username
+    password: 'admin', // Replace with your MySQL password
     database: 'to_do_app'
 });
 

@@ -65,4 +65,31 @@ router.put('/todos/:id', (req, res) => {
     });
 });
 
+
+router.post('/teams/task', (req, res) => {
+    const { taskId, title, createdBy, dueDate } = req.body;
+
+    // Log the received task from Teams
+    console.log('Received task from Teams:', {
+        taskId,
+        title,
+        createdBy,
+        dueDate
+    });
+
+    // Optionally, add the task to the database (similar to adding a todo)
+    addTodo(`Task from Teams: ${title}`, (err, newTask) => {
+        if (err) {
+            return res.status(500).json('Error: ' + err);
+        }
+        res.status(201).json({
+            message: 'Task created successfully from Teams',
+            task: newTask
+        });
+    });
+});
+
+
+
+
 module.exports = router;
