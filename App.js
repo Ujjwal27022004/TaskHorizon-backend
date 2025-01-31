@@ -450,35 +450,37 @@ app.post('/create-jira-issue', async (req, res) => {
 
 app.get('/get-jira-issues', async (req, res) => {
     try {
-      const authHeader = JIRA_API_TOKEN
-      const maxResults = 1000;
-      const jql = "ORDER BY created DESC"; // Broad query to get all issues (sorted by creation)
-  
-      const response = await axios.get(
-        "https://ujjwal27022004.atlassian.net/rest/api/3/search?jql=project=WTS&maxResults=1000",
-        {
-          headers: {
-            'Authorization': "dWpqd2FsMjcwMjIwMDRAZ21haWwuY29tOkFUQVRUM3hGZkdGMGFaOUJUSVVHOTc4Vk5zRF9IYWc2SmxZU2RlZjR0dE9Id1BMM2l6Uk1IVnVDTnY0MHk4SlJtTHdodVhWVXV2b1lRalhLVmtsYl9NeDZ2V1lsbE9SY1I2dVlmcUd5REdVV2JyeUtLZFhBRzh5ZWZuVWszTTVkUm1QRnI2MDlWcUR3Q3daNDdLU1NlRHVxNXFMeEFUcUZPVlFNUF9yZHN0TTJYXzh3bDlxR1J0az0xQzlENDhDNA==",
-            'Content-Type': 'application/json',
-          }
+        const response = await axios.get(
+            "https://ujjwal27022004.atlassian.net/rest/api/2/search?jql=ORDER%20BY%20Created",
+            {
+                auth: { username: JIRA_EMAIL, password: JIRA_API_TOKEN },
+                headers: { 'Content-Type': 'application/json' }
+            }
+        );    
+
+        console.log('Response Data:', response.data); // Log full response
+
+        if (response.data.issues && response.data.issues.length > 0) {
+            // Extract only required fields
+            const issues = response.data.issues.map(issue => ({
+                id: issue.id,
+                key: issue.key,
+                summary: issue.fields.summary, // Issue summary
+                description: issue.fields.description || "No description provided", // Issue description
+                issueType: issue.fields.issuetype.name // Issue type name
+            }));
+
+            res.json(issues); // Return filtered issues
+        } else {
+            res.status(404).json({ message: "No issues found." });
         }
-      );
-  
-      console.log('Response Data:', response.data); // Log full response
-      console.log('Response Status:', response.status); // Log the HTTP status
-  
-      if (response.data.issues && response.data.issues.length > 0) {
-        res.json(response.data); // Return issues if found
-      } else {
-        res.status(404).json({ message: "No issues found." });
-      }
-  
+
     } catch (error) {
-      console.error('Error fetching Jira issues:', error.response ? error.response.data : error.message);
-      res.status(500).send('Error fetching Jira issues');
+        console.error('Error fetching Jira issues:', error.response ? error.response.data : error.message);
+        res.status(500).send('Error fetching Jira issues');
     }
-  });
-  
+});
+
   
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
